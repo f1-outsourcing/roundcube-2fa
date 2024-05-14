@@ -19,6 +19,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// issuer name (not set servername)
+$config['kolab_2fa_issuer'] = '';
+
 // available methods/providers. Supported methods are: 'totp','hotp','yubikey'
 $config['kolab_2fa_drivers'] = array('totp');
 
