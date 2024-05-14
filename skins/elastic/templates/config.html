@@ -4,17 +4,19 @@
 
 <h1 class="voice"><roundcube:label name="kolab_2fa.settingstitle" /></h1>
 
-<div id="layout-content" class="selected no-navbar" role="main">
-	<h2 id="aria-label-toolbar" class="voice"><roundcube:label name="arialabeltoolbar" /></h2>
-	<div class="header" role="toolbar" aria-labelledby="aria-label-toolbar">
+<div id="layout-content" class="selected" role="main">
+	<div class="header">
 		<a class="button icon back-list-button" href="#back"><span class="inner"><roundcube:label name="back" /></span></a>
 		<span class="header-title"><roundcube:label name="kolab_2fa.settingstitle" /></span>
-		<div class="toolbar menu"></div>
 	</div>
-	<div class="scroller frame-content">
-		<p class="addfactor">
+	<div class="formcontainer scroller">
+		<div class="formcontent">
+			<fieldset><legend>Two factor authention options</legend>
+			<p>With Two-Factor authentication, also called 2-Step verification, you can add an extra layer of security to your account in case your password is stolen. After you set up Two-Factor authentication, you can only sign in to your account using your password and the second factor you chose.</p>	
+			<roundcube:object name="plugin.enforcemsg" />
+			<p class="addfactor">
 			<roundcube:object name="plugin.factoradder" class="form-control" />
-		</p>
+			</p>
 		<roundcube:object name="plugin.settingslist" class="authentication-factors" />
 	</div>
 </div>

@@ -19,6 +19,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// should the plugin enforce MFA enrollment
+// if this is enabled then the user will be redirected to the MFA configuration
+// page and has to complete enrollement before they can use roundcube again.
+$config['kolab_2fa_enforce'] = false;
+
 // available methods/providers. Supported methods are: 'totp','hotp','yubikey'
 $config['kolab_2fa_drivers'] = array('totp');
 

@@ -23,7 +23,7 @@
 
 class kolab_2fa extends rcube_plugin
 {
-    public $task = '(login|settings)';
+    #public $task = '(login|settings)';
 
     protected $login_verified = null;
     protected $login_factors = array();
@@ -67,6 +67,47 @@ class kolab_2fa extends rcube_plugin
             $this->register_action('plugin.kolab-2fa-save', array($this, 'settings_save'));
             $this->register_action('plugin.kolab-2fa-verify', array($this, 'settings_verify'));
         }
+
+        $plugin_actions = array(
+            'plugin.kolab-2fa',
+            'plugin.kolab-2fa-data',
+            'plugin.kolab-2fa-save',
+            'plugin.kolab-2fa-verify'
+        );
+
+        $session_tasks  = array('login', 'logout');
+
+        if ( $rcmail->config->get('kolab_2fa_enforce', false) ) {
+            $a_host = parse_url($args['host']);
+            $hostname = $_SESSION['hostname'] = $a_host['host'] ?: $args['host'];
+
+            $lookup = $rcmail->plugins->exec_hook('kolab_2fa_lookup', array(
+                'user'    => $rcmail->get_user_name(),
+                'host'    => $hostname,
+                'factors' => $rcmail->config->get('kolab_2fa_factors'),
+                'check'   => $rcmail->config->get('kolab_2fa_check', true),
+            ));
+            if (isset($lookup['factors'])) {
+                $factors = (array)$lookup['factors'];
+            }
+            // 2b. check storage if this user has 2FA enabled
+            else if ($lookup['check'] !== false && ($storage = $this->get_storage($args['user']))) {
+                $factors = (array)$storage->enumerate();
+            }
+
+            $factors_count = count($factors);
+            if ($factors_count === 0) {
+                if (!(in_array($args['task'], $session_tasks))) {
+                    if (!($args['task'] === 'settings' && in_array($args['action'], $plugin_actions))) {
+                        $this->api->output->redirect(array('_task' => 'settings', '_action' => 'plugin.kolab-2fa'));
+                    }
+                    else {
+                        $this->api->output->show_message("MFA is enforced you need to have at least one 2nd factor configured. Current number of configured MFA tokens: " . $factors_count, 'error');
+                    }
+                }
+            }
+        }
+
 
         return $args;
     }
@@ -415,6 +456,7 @@ class kolab_2fa extends rcube_plugin
         $this->register_handler('plugin.settingsform', array($this, 'settings_form'));
         $this->register_handler('plugin.settingslist', array($this, 'settings_list'));
         $this->register_handler('plugin.factoradder', array($this, 'settings_factoradder'));
+        $this->register_handler('plugin.enforcemsg', array($this, 'settings_enforcemsg'));
         $this->register_handler('plugin.highsecuritydialog', array($this, 'settings_highsecuritydialog'));
 
         $this->include_script('kolab2fa.js');
@@ -427,6 +469,30 @@ class kolab_2fa extends rcube_plugin
         $this->api->output->add_label('save','cancel');
         $this->api->output->set_pagetitle($this->gettext('settingstitle'));
         $this->api->output->send('kolab_2fa.config');
+    }
+
+    /**
+     * Render message enforcing 2fa
+     */
+    public function settings_enforcemsg()
+    {
+        $rcmail = rcmail::get_instance();
+        if ($rcmail->config->get('kolab_2fa_enforce', false)) { 
+
+            $factors = $rcmail->config->get('kolab_2fa_factors');
+
+            if (isset($lookup['factors'])) {
+                    $factors = (array)$lookup['factors'];
+            }
+
+
+            if (count($factors) === 0 ) {
+                $out = 'You are required to use Multi Factor authentication when accessing webmail.';
+                return html::div(array('class' => 'alert alert-danger'), $out);
+            }
+        }
+
+        return null;
     }
 
     /**
