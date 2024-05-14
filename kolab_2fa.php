@@ -359,9 +359,11 @@ class kolab_2fa extends rcube_plugin
 
         $config = $rcmail->config->get('kolab_2fa_' . $method, array());
 
-        // use product name as "issuer""
-        if (empty($config['issuer'])) {
-            $config['issuer'] = $rcmail->config->get('product_name');
+        // use product name as "issuer"
+        if ( empty($rcmail->config->get('kolab_2fa_issuer')) ) {
+            $config['issuer'] = $_SERVER['SERVER_NAME']; 
+        } else {
+            $config['issuer'] = $rcmail->config->get('kolab_2fa_issuer'); 
         }
 
         try {

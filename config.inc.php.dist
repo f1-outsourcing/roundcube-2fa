@@ -24,6 +24,9 @@
 // page and has to complete enrollement before they can use roundcube again.
 $config['kolab_2fa_enforce'] = false;
 
+// issuer name (not set servername)
+$config['kolab_2fa_issuer'] = '';
+
 // available methods/providers. Supported methods are: 'totp','hotp','yubikey'
 $config['kolab_2fa_drivers'] = array('totp');
 
