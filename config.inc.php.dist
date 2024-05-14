@@ -22,7 +22,12 @@
 // should the plugin enforce MFA enrollment
 // if this is enabled then the user will be redirected to the MFA configuration
 // page and has to complete enrollement before they can use roundcube again.
-$config['kolab_2fa_enforce'] = false;
+$config['kolab_2fa_enforce'] = array(
+     'enabled' => true,
+     'domains' => array('webmail.example.net' ),
+     'users' => array('testuser','testuser2'),
+);
+
 
 // issuer name (not set servername)
 $config['kolab_2fa_issuer'] = '';

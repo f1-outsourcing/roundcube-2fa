@@ -30,6 +30,8 @@ class kolab_2fa extends rcube_plugin
     protected $drivers = array();
     protected $storage;
 
+    protected $forceuser2fa = false;
+
     /**
      * Plugin init
      */
@@ -77,7 +79,9 @@ class kolab_2fa extends rcube_plugin
 
         $session_tasks  = array('login', 'logout');
 
-        if ( $rcmail->config->get('kolab_2fa_enforce', false) ) {
+        $this->forceuser2fa = $this->get_forced2fa();
+
+        if ( $this->forceuser2fa ) {
             $a_host = parse_url($args['host']);
             $hostname = $_SESSION['hostname'] = $a_host['host'] ?: $args['host'];
 
@@ -399,6 +403,34 @@ class kolab_2fa extends rcube_plugin
     /**
      * Getter for a storage instance singleton
      */
+    public function get_forced2fa()
+    {
+        $forced = false;
+
+        $rcmail = rcmail::get_instance();
+        $configforce = $rcmail->config->get('kolab_2fa_enforce', array());
+
+        if (array_key_exists('enabled', $configforce) && $configforce['enabled']) {
+
+             //enforcing 2fa is enabled, checking first hostnames
+             $hostnames = $configforce['domains'];
+
+             if ( in_array($_SERVER['SERVER_NAME'], $hostnames) ) {
+                 return true;
+             }
+
+             $usernames = $configforce['users'];
+             if ( in_array($rcmail->get_user_name(), $usernames) ) {
+                 return true;
+             }
+        }
+
+        return $forced;
+    }
+
+    /**
+     * Getter for a storage instance singleton
+     */
     public function get_storage($for = null)
     {
         if (!isset($this->storage) || (!empty($for) && $this->storage->username !== $for)) {
@@ -479,7 +511,7 @@ class kolab_2fa extends rcube_plugin
     public function settings_enforcemsg()
     {
         $rcmail = rcmail::get_instance();
-        if ($rcmail->config->get('kolab_2fa_enforce', false)) { 
+        if ($this->forceuser2fa) { 
 
             $factors = $rcmail->config->get('kolab_2fa_factors');
 
