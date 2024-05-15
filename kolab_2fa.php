@@ -504,6 +504,7 @@ class kolab_2fa extends rcube_plugin
         $this->register_handler('plugin.settingslist', array($this, 'settings_list'));
         $this->register_handler('plugin.factoradder', array($this, 'settings_factoradder'));
         $this->register_handler('plugin.enforcemsg', array($this, 'settings_enforcemsg'));
+        $this->register_handler('plugin.showapps', array($this, 'settings_showapps'));
         $this->register_handler('plugin.highsecuritydialog', array($this, 'settings_highsecuritydialog'));
 
         $this->include_script('kolab2fa.js');
@@ -516,6 +517,48 @@ class kolab_2fa extends rcube_plugin
         $this->api->output->add_label('save','cancel');
         $this->api->output->set_pagetitle($this->gettext('settingstitle'));
         $this->api->output->send('kolab_2fa.config');
+    }
+
+    /**
+     * Render apps for first time use
+     */
+    public function settings_showapps()
+    {
+        $out = '';
+        $rcmail = rcmail::get_instance();
+        $configapps = $rcmail->config->get('kolab_2fa_apps', array());
+
+        $factors = $rcmail->config->get('kolab_2fa_factors', array());
+        if (isset($lookup['factors'])) {
+            $factors = (array)$lookup['factors'];
+        }
+
+        // no need to advertise apps after configuring them
+        if (count($factors) === 0) {
+            if (array_key_exists('fdroid', $configapps)) {
+                $img = html::img(['src' => '../../plugins/kolab_2fa/skins/fdroidapp.png', 'height' => 40]);
+                $out .= html::a([
+                    'href'    => $configapps['fdroid'],
+                    'target'  => '_blank',
+                ], $img).' ';
+            }
+            if (array_key_exists('google', $configapps)) {
+                $img = html::img(['src' => '../../plugins/kolab_2fa/skins/googleapp.png', 'height' => 40]);
+                $out .= html::a([
+                    'href'    => $configapps['google'],
+                    'target'  => '_blank',
+                ], $img).' ';
+            }
+            if (array_key_exists('apple', $configapps)) {
+                $img = html::img(['src' => '../../plugins/kolab_2fa/skins/appleapp.png', 'height' => 40]);
+                $out .= html::a([
+                    'href'    => $configapps['apple'],
+                    'target'  => '_blank',
+                ], $img);
+            }
+        }
+
+	return $out;
     }
 
     /**

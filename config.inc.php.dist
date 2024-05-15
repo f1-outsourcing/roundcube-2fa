@@ -28,6 +28,12 @@ $config['kolab_2fa_enforce'] = array(
      'users' => array('testuser','testuser2'),
 );
 
+// app links
+$config['kolab_2fa_apps'] = array(
+     'fdroid' => 'https://f-droid.org/app/com.beemdevelopment.aegis',
+     'google' => 'https://play.google.com/store/apps/details?id=com.beemdevelopment.aegis',
+     'apple' => 'https://apps.apple.com/us/app/google-authenticator/id388497605',
+);
 
 // issuer name (not set servername)
 $config['kolab_2fa_issuer'] = '';
