@@ -77,6 +77,13 @@ class kolab_2fa extends rcube_plugin
             'plugin.kolab-2fa-verify'
         );
 
+        $plugin_internal_actions = array(
+            'plugin.newusersave', 
+            'plugin.kolab-2fa-data', 
+            'plugin.kolab-2fa-save',
+            'plugin.kolab-2fa-verify'
+        );
+
         $session_tasks  = array('login', 'logout');
 
         $this->forceuser2fa = $this->get_forced2fa();
@@ -100,13 +107,19 @@ class kolab_2fa extends rcube_plugin
             }
 
             $factors_count = count($factors);
+
             if ($factors_count === 0) {
                 if (!(in_array($args['task'], $session_tasks))) {
-                    if (!($args['task'] === 'settings' && in_array($args['action'], $plugin_actions))) {
+                    if ($args['task'] === 'settings' && $args['action'] == 'plugin.newusersave') {
+                        // fix temp work-around for new user dialog 
+                        ;
+                    } elseif (!($args['task'] === 'settings' && in_array($args['action'], $plugin_actions))) {
                         $this->api->output->redirect(array('_task' => 'settings', '_action' => 'plugin.kolab-2fa'));
-                    }
-                    else {
-                        $this->api->output->show_message("MFA is enforced you need to have at least one 2nd factor configured. Current number of configured MFA tokens: " . $factors_count, 'error');
+                    } else {
+                        if (!($args['task'] === 'settings' && in_array($args['action'], $plugin_internal_actions))) {
+                            error_log("showing mfa popup for " . $args['task'] . " - " . $args['action']);
+                            $this->api->output->show_message("MFA is enforced you need to have at least one 2nd factor configured. Current number of configured MFA tokens: " . $factors_count, 'error');
+                        }
                     }
                 }
             }
@@ -513,7 +526,7 @@ class kolab_2fa extends rcube_plugin
         $rcmail = rcmail::get_instance();
         if ($this->forceuser2fa) { 
 
-            $factors = $rcmail->config->get('kolab_2fa_factors');
+            $factors = $rcmail->config->get('kolab_2fa_factors', array());
 
             if (isset($lookup['factors'])) {
                     $factors = (array)$lookup['factors'];
