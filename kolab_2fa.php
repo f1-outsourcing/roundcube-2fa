@@ -316,10 +316,11 @@ class kolab_2fa extends rcube_plugin
 
         // render input for each configured auth method
         foreach ($methods as $i => $method) {
+            /* breaks design prompt after user/password
             if ($row++ > 0) {
-                $table->add(array('colspan' => 2, 'class' => 'title hint', 'style' => 'text-align:center'),
-                    $this->gettext('or'));
+                $table->add(array('colspan' => 2, 'class' => 'title hint', 'style' => 'text-align:center'),$this->gettext('or'));
             }
+            */
 
             $field_id = "rcmlogin2fa$method";
             $input_code = new html_inputfield(array(

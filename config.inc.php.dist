@@ -39,7 +39,7 @@ $config['kolab_2fa_apps'] = array(
 $config['kolab_2fa_issuer'] = '';
 
 // available methods/providers. Supported methods are: 'totp','hotp','yubikey'
-$config['kolab_2fa_drivers'] = array('totp');
+$config['kolab_2fa_drivers'] = array('totp', 'hotp');
 
 // backend for storing 2-factor-auth related per-user settings
 // available backends are: 'roundcube', 'ldap', 'sql'
